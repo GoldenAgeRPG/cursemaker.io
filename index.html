@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JJK Bestiary - Cursed Arcade</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Roboto:wght@400;700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+  <style>
+    /* =========================================
+       1. CSS DO PREVIEW (Visual da Ficha Final)
+       ========================================= */
+    #preview-box {
+      --curse-bg: #0c0505; --curse-panel: #1a0b0b; --curse-border: #3d1a1a;
+      --curse-accent: #c52020; --curse-accent-dim: #7a1212; --curse-text: #e0e0e0; --curse-dim: #a08080;
+      font-family: 'Roboto', sans-serif; line-height: 1.5;
+    }
+    
+    #preview-box .jjk-curse-container { width: 100%; margin: 0 auto; background-color: var(--curse-bg); border: 1px solid var(--curse-border); border-left: 4px solid var(--curse-accent); border-radius: 8px; color: var(--curse-text); box-shadow: 0 0 20px rgba(0,0,0,0.6); overflow: hidden; }
+    
+    #preview-box .curse-header { display: flex; background: linear-gradient(to right, var(--curse-panel), var(--curse-bg)); border-bottom: 1px solid var(--curse-border); align-items: stretch; }
+    
+    /* IMAGEM FIXADA */
+    #preview-box .curse-image { 
+      width: 200px; min-height: 250px; background-color: #000; 
+      background-size: cover; background-position: top center; background-repeat: no-repeat;
+      border: 2px solid var(--curse-border); margin: 15px; border-radius: 4px; flex-shrink: 0;
+    }
+
+    #preview-box .curse-identity { padding: 20px 20px 20px 5px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    #preview-box .curse-name { font-size: 1.8em; font-weight: 900; color: #fff; text-transform: uppercase; margin-bottom: 5px; text-shadow: 0 0 10px var(--curse-accent-dim); font-family: 'Roboto', sans-serif; }
+    #preview-box .curse-tags { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+    #preview-box .tag-grade { background: var(--curse-accent); color: #fff; font-size: 0.7em; padding: 3px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
+    #preview-box .tag-type { background: #333; color: #aaa; border: 1px solid #444; font-size: 0.7em; padding: 3px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
+    
+    /* STATUS CORRIGIDOS (Flexbox) */
+    #preview-box .curse-main-stats { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+    
+    #preview-box .jjk-dossier-status-item { 
+      display: flex; align-items: center; gap: 10px; margin-bottom: 5px; width: 100%; position: relative;
+    }
+    #preview-box .jjk-dossier-status-header { display: contents; }
+    #preview-box .jjk-dossier-status-name { display: block; width: 40px; font-size: 0.85em; font-weight: 900; color: var(--curse-dim); text-transform: uppercase; white-space: nowrap; flex-shrink: 0; }
+    
+    #preview-box .jjk-dossier-status-bar { flex-grow: 1; height: 10px; background: #000; border-radius: 4px; border: 1px solid #333; overflow: hidden; margin: 0; }
+    #preview-box .jjk-dossier-hp-fill { height: 100%; background: var(--curse-accent); width: 100%; }
+    #preview-box .jjk-dossier-ea-fill { height: 100%; background: #6D20C5; width: 100%; }
+    
+    #preview-box .jjk-dossier-status-value { 
+      display: block; min-width: 80px; text-align: right; font-size: 0.8em; font-weight: 700; color: #fff; 
+      font-family: 'Roboto Mono', monospace; white-space: nowrap; flex-shrink: 0;
+    }
+    
+    #preview-box .curse-regen-info { font-size: 0.75em; color: var(--curse-dim); margin-top: -2px; text-align: right; }
+    
+    #preview-box .curse-section { padding: 15px 20px; border-bottom: 1px solid var(--curse-border); }
+    #preview-box .curse-title { font-size: 1.1em; font-weight: 700; color: var(--curse-accent); border-bottom: 1px solid var(--curse-border); padding-bottom: 5px; margin: 0 0 15px 0; text-transform: uppercase; font-family: 'Roboto', sans-serif; }
+    
+    /* LORE GRID */
+    #preview-box .lore-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+    #preview-box .lore-box { background: var(--curse-panel); padding: 10px; border-radius: 4px; border: 1px solid #2a1a1a; }
+    #preview-box .lore-full { grid-column: 1 / -1; }
+    #preview-box .lore-label { display: block; font-size: 0.75em; color: var(--curse-accent); text-transform: uppercase; font-weight: 900; margin-bottom: 5px; border-bottom: 1px dashed var(--curse-border); padding-bottom: 2px; }
+    #preview-box .lore-text { font-size: 0.85em; color: #ccc; line-height: 1.5; white-space: pre-wrap; text-align: justify; }
+
+    #preview-box .jjk-dossier-attr-list { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+    #preview-box .jjk-dossier-attr-item { background: var(--curse-panel); padding: 5px; border-radius: 4px; border: 1px solid var(--curse-border); text-align: center; }
+    #preview-box .jjk-dossier-attr-header { display: flex; flex-direction: column; font-size: 0.75em; font-weight: 700; gap: 2px; }
+    #preview-box .jjk-dossier-attr-header span:first-child { color: var(--curse-accent); }
+    #preview-box .jjk-dossier-attr-bar { height: 3px; background: #000; margin-top: 3px; border-radius: 2px; }
+    #preview-box .jjk-dossier-attr-bar-fill { height: 100%; background: var(--curse-text); width: 50%; }
+    
+    #preview-box .curse-skills-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    #preview-box .skill-cat-name { font-size: 0.75em; font-weight: 900; color: #fff; background: var(--curse-accent-dim); padding: 2px 5px; margin-bottom: 5px; text-align: center; border-radius: 2px; }
+    #preview-box .jjk-dossier-skill-item { display: grid; grid-template-columns: 1fr auto auto; gap:5px; align-items: center; font-size: 0.75em; padding: 1px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    #preview-box .jjk-dossier-skill-item span:first-child { color: var(--curse-dim); }
+    #preview-box .jjk-dossier-skill-level { color: var(--curse-accent); font-weight: 700; }
+    #preview-box .jjk-dossier-skill-xp { color: #fff; font-weight: 700; text-align: right; }
+    #preview-box .jjk-dossier-skill-bar { display: none; }
+    
+    #preview-box .curse-tech-list { display: flex; flex-direction: column; gap: 8px; }
+    #preview-box .curse-tech-card { background: var(--curse-panel); border: 1px solid var(--curse-border); padding: 10px; border-radius: 4px; }
+    #preview-box .tech-name { font-weight: 700; color: #fff; margin-bottom: 5px; font-size: 0.9em; font-family: 'Roboto', sans-serif; }
+    #preview-box .tech-desc { font-size: 0.85em; color: var(--curse-dim); white-space: pre-wrap; }
+
+    @media (max-width: 900px) {
+      #preview-box .curse-header { flex-direction: column; }
+      #preview-box .curse-image { width: calc(100% - 30px); height: 250px; margin: 15px auto; }
+      #preview-box .curse-identity { padding: 0 20px 20px 20px; }
+      #preview-box .curse-skills-grid { grid-template-columns: 1fr; }
+      #preview-box .jjk-dossier-attr-list { grid-template-columns: repeat(4, 1fr); }
+      #preview-box .lore-grid { grid-template-columns: 1fr; }
+    }
+
+    /* =========================================
+       2. CSS DA INTERFACE (CURSED ARCADE THEME)
+       ========================================= */
+    :root {
+      --ui-bg: #050000; --ui-panel: #140505; --ui-border: #4a0d0d; --ui-accent: #ff3333;
+      --ui-text: #d8d8d8; --ui-highlight: #ffffff;
+    }
+
+    html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: 'VT323', monospace; background-color: var(--ui-bg); color: var(--ui-text); font-size: 18px; }
+    .layout-grid { display: grid; grid-template-columns: 480px 1fr; height: 100%; width: 100%; }
+    .editor-pane { background: var(--ui-panel); border-right: 4px solid var(--ui-border); display: flex; flex-direction: column; height: 100%; min-height: 0; z-index: 10; box-shadow: 10px 0 30px rgba(0,0,0,0.8); }
+    .editor-header { padding: 20px; background: #0a0000; border-bottom: 4px solid var(--ui-accent); flex-shrink: 0; }
+    .editor-header h1 { margin: 0; font-family: 'Press Start 2P', cursive; color: var(--ui-accent); font-size: 1.1em; text-shadow: 3px 3px 0 #000; line-height: 1.5; }
+    .editor-scroll-area { flex: 1 1 auto; overflow-y: auto; padding: 20px; }
+    .editor-content-wrapper { display: flex; flex-direction: column; gap: 20px; padding-bottom: 100px; }
+    .input-group { display: flex; flex-direction: column; gap: 5px; }
+    label { font-family: 'Press Start 2P', cursive; font-size: 0.6em; color: var(--ui-accent); text-transform: uppercase; margin-bottom: 5px; display: block; }
+    input, textarea, select { background: #000; border: 2px solid var(--ui-border); color: #fff; padding: 10px; font-family: 'VT323', monospace; font-size: 1.3em; width: 100%; box-sizing: border-box; box-shadow: inset 3px 3px 0px rgba(0,0,0,0.5); }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--ui-accent); background: #0f0505; }
+    textarea { resize: vertical; }
+    .row { display: flex; gap: 10px; } .col { flex: 1; }
+    .fixed-text-input { display: flex; align-items: center; gap: 5px; }
+    .fixed-text { font-family: 'Press Start 2P'; font-size: 0.6em; color: #888; white-space: nowrap; }
+    .tech-item { background: #261010; border: 1px solid var(--ui-border); border-radius: 4px; padding: 10px; margin-bottom: 10px; position: relative; box-shadow: 4px 4px 0 #000; }
+    .tech-remove { position: absolute; top: -10px; right: -5px; background: var(--ui-accent); color: #fff; border: 2px solid #000; width: 20px; height: 20px; text-align: center; line-height: 20px; cursor: pointer; font-family: 'Press Start 2P'; font-size: 0.6em; }
+    .btn { padding: 15px; border: 2px solid #000; font-family: 'Press Start 2P', cursive; font-size: 0.7em; cursor: pointer; width: 100%; text-transform: uppercase; box-shadow: 4px 4px 0px rgba(0,0,0,0.5); transition: transform 0.1s; }
+    .btn:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0px rgba(0,0,0,0.5); }
+    .btn:active { transform: translate(4px, 4px); box-shadow: none; }
+    .btn-primary { background: var(--ui-accent); color: #fff; }
+    .btn-secondary { background: #333; color: #ccc; }
+    #import-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: none; align-items: center; justify-content: center; }
+    .modal-box { background: var(--ui-panel); padding: 20px; border: 4px solid var(--ui-accent); width: 90%; max-width: 500px; box-shadow: 10px 10px 0 #000; }
+    .skills-grid-editor { display: grid; grid-template-columns: 1fr; gap: 15px; }
+    .skills-category-title { color: var(--ui-highlight); font-family: 'Press Start 2P', cursive; font-size: 0.7em; border-bottom: 2px dashed var(--ui-border); margin-bottom: 10px; padding-bottom: 5px; }
+    .skill-input-row { display: grid; grid-template-columns: 1fr 90px 90px; gap: 10px; align-items: center; margin-bottom: 5px; }
+    .skill-input-row label { font-family: 'VT323', monospace; font-size: 1.3em; color: #aaa; margin: 0; text-shadow: none; }
+    .skill-input-row input { text-align: center; padding: 5px; }
+    .preview-pane { background: #050505; background-image: linear-gradient(rgba(50, 0, 0, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(50, 0, 0, 0.2) 1px, transparent 1px); background-size: 40px 40px; overflow-y: auto; height: 100%; display: flex; justify-content: center; padding: 40px; box-sizing: border-box; }
+    #preview-box { width: 100%; max-width: 800px; }
+    @media (max-width: 800px) { .layout-grid { grid-template-columns: 1fr; display: block; overflow: auto; height: auto; } .editor-pane { height: auto; min-width: 100%; border-right: none; } .editor-scroll-area { overflow: visible; } .preview-pane { min-height: 100vh; padding: 20px 10px; } html, body { overflow: auto; height: auto; } }
+  </style>
+</head>
+<body>
+
+  <div id="import-modal">
+    <div class="modal-box">
+      <h3 style="margin-top:0; color:var(--ui-accent); font-family:'Press Start 2P'; font-size:0.8em; line-height:1.5;">IMPORTAR FICHA</h3>
+      <textarea id="import-area" style="height:120px; margin-bottom:10px;" placeholder="Cole o HTML da maldição aqui..."></textarea>
+      <div class="row">
+        <button class="btn btn-primary" onclick="runImport()">CARREGAR</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('import-modal').style.display='none'">CANCELAR</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout-grid">
+    <div class="editor-pane">
+      <div class="editor-header">
+        <h1>CURSE MAKER</h1>
+        <div class="row" style="margin-top:15px;">
+          <button class="btn btn-secondary" style="font-size:0.6em;" onclick="document.getElementById('import-modal').style.display='flex'">IMPORTAR</button>
+          <button class="btn btn-secondary" style="font-size:0.6em;" onclick="resetData()">RESETAR</button>
+        </div>
+      </div>
+      
+      <div class="editor-scroll-area">
+        <div class="editor-content-wrapper">
+          
+          <div>
+            <label>NOME DA MALDIÇÃO</label>
+            <input type="text" id="inp-name" oninput="upd('name', this.value)">
+            <div class="row" style="margin-top:10px;">
+              <div class="col"><label>GRAU</label><input type="text" id="inp-grade" oninput="upd('grade', this.value)" placeholder="Grau Especial"></div>
+              <div class="col"><label>TIPO</label><input type="text" id="inp-type" oninput="upd('type', this.value)" placeholder="Espírito Vingativo"></div>
+            </div>
+            <label style="margin-top:10px;">IMAGEM (URL)</label>
+            <input type="text" id="inp-img" oninput="upd('img', this.value)" placeholder="https://...">
+          </div>
+
+          <div class="row">
+            <div class="col">
+                <label>HP (VIGOR)</label>
+                <div class="fixed-text-input">
+                    <input type="text" id="inp-hp-curr" oninput="upd('hpCurr', this.value)" placeholder="1000">
+                    <span class="fixed-text">/</span>
+                    <input type="text" id="inp-hp-max" oninput="upd('hpMax', this.value)" placeholder="1000">
+                </div>
+            </div>
+            <div class="col">
+                <label>EA (ENERGIA)</label>
+                <div class="fixed-text-input">
+                    <input type="text" id="inp-ea-curr" oninput="upd('eaCurr', this.value)" placeholder="500">
+                    <span class="fixed-text">/</span>
+                    <input type="text" id="inp-ea-max" oninput="upd('eaMax', this.value)" placeholder="500">
+                </div>
+            </div>
+          </div>
+          
+          <div style="margin-top:5px;">
+             <label>REGENERAÇÃO DE EA</label>
+             <div class="fixed-text-input">
+                <input type="text" id="inp-regen" oninput="upd('regen', this.value)" placeholder="50">
+                <span class="fixed-text">p/ turno</span>
+             </div>
+          </div>
+
+          <label style="margin-top:15px;">ATRIBUTOS (/20)</label>
+          <div class="row">
+            <div class="col"><label>FOR</label><input type="text" id="inp-attr-for" oninput="upd('attrFor', this.value)"></div>
+            <div class="col"><label>DES</label><input type="text" id="inp-attr-des" oninput="upd('attrDes', this.value)"></div>
+            <div class="col"><label>INT</label><input type="text" id="inp-attr-int" oninput="upd('attrInt', this.value)"></div>
+            <div class="col"><label>SOR</label><input type="text" id="inp-attr-sor" oninput="upd('attrSor', this.value)"></div>
+          </div>
+          <div class="row" style="margin-top:5px;">
+            <div class="col"><label>VIG</label><input type="text" id="inp-attr-vig" oninput="upd('attrVig', this.value)"></div>
+            <div class="col"><label>ENE</label><input type="text" id="inp-attr-ene" oninput="upd('attrEne', this.value)"></div>
+            <div class="col"><label>FON</label><input type="text" id="inp-attr-fon" oninput="upd('attrFon', this.value)"></div>
+            <div class="col"></div> </div>
+
+          <div>
+            <label style="margin-top:20px; border-bottom:2px solid var(--ui-border); padding-bottom:5px;">APTIDÕES</label>
+            <div id="skills-editor-container" class="skills-grid-editor"></div>
+          </div>
+          
+          <div>
+             <label style="margin-top:20px; border-bottom:2px solid var(--ui-border); padding-bottom:5px;">DESCRIÇÃO & LORE</label>
+             <div class="input-group" style="margin-top:10px;">
+                 <label>DESCRIÇÃO FÍSICA</label>
+                 <textarea id="inp-phys" rows="3" oninput="upd('phys', this.value)"></textarea>
+             </div>
+             <div class="input-group">
+                 <label>PERFIL PSICOLÓGICO</label>
+                 <textarea id="inp-psy" rows="3" oninput="upd('psy', this.value)"></textarea>
+             </div>
+             <div class="input-group">
+                 <label>HISTÓRICO / ORIGEM</label>
+                 <textarea id="inp-hist" rows="5" oninput="upd('hist', this.value)"></textarea>
+             </div>
+          </div>
+
+          <div>
+            <label style="margin-top:20px;">TÉCNICAS & HABILIDADES</label>
+            <div id="tech-list"></div>
+            <button class="btn btn-secondary" style="margin-top:10px;" onclick="addTech()">+ NOVA TÉCNICA</button>
+          </div>
+
+          <div>
+            <label style="margin-top:20px;">CÓDIGO FINAL</label>
+            <textarea id="output-code" readonly style="height:80px; border-color:var(--ui-accent); color:var(--ui-accent);"></textarea>
+            <button class="btn btn-primary" style="margin-top:10px;" onclick="copyCode()">COPIAR HTML</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-pane">
+      <div id="preview-box"></div>
+    </div>
+  </div>
+
+<script>
+  const skillCategories = {
+    'FORÇA': ['Desarmado', 'Esp. Longas', 'Mach. Longos', 'Mart. Longos', 'Clavas', 'Escalada', 'Acrobacia'],
+    'DESTREZA': ['Esp. Curtas', 'Adagas', 'Lâm. Duplas', 'Mach. Curtos', 'Mart. Curtos', 'Lanças', 'Foices', 'Bastões', 'Correntes', 'Arremesso', 'Armas Fogo', 'Furtividade', 'Natação', 'Corrida'],
+    'INTELIGÊNCIA': ['Feitiços', 'Barreiras', 'Pactos', 'Perc. Mágica', '1º Socorros', 'Téc. Reversa', 'Perc. Visual', 'Sobrevivência']
+  };
+
+  let state = {
+    name: "Nome da Maldição", grade: "Grau Especial", type: "Espírito Amaldiçoado",
+    img: "https://i.pinimg.com/originals/86/c2/3d/86c23d6515462220407f70c877038526.jpg",
+    hpCurr: "1000", hpMax: "1000",
+    eaCurr: "500", eaMax: "500",
+    regen: "50",
+    attrFor: "10", attrDes: "10", attrInt: "10", attrSor: "10", 
+    attrVig: "10", attrEne: "10", attrFon: "10",
+    skills: {},
+    phys: "", psy: "", hist: "",
+    techs: [ { title: "Técnica Inata", desc: "Descrição da técnica." } ]
+  };
+
+  function initSkills() {
+    for (let cat in skillCategories) {
+      skillCategories[cat].forEach(skill => {
+        if (!state.skills[skill]) state.skills[skill] = { lvl: "00", xp: "000/200" };
+      });
+    }
+  }
+  initSkills();
+
+  function upd(field, val) { state[field] = val; renderPreview(); generateCode(); }
+
+  function updSkill(name, type, val) {
+    if (!state.skills[name]) state.skills[name] = { lvl: "00", xp: "000/200" };
+    state.skills[name][type] = val;
+    renderPreview();
+    generateCode();
+  }
+
+  function addTech() { state.techs.push({ title: "Nova Técnica", desc: "Descrição..." }); renderTechEditor(); renderPreview(); generateCode(); }
+  function updTech(idx, field, val) { state.techs[idx][field] = val; renderPreview(); generateCode(); }
+  function removeTech(idx) { state.techs.splice(idx, 1); renderTechEditor(); renderPreview(); generateCode(); }
+
+  function renderSkillsEditor() {
+    const container = document.getElementById('skills-editor-container');
+    let html = '';
+    for (let cat in skillCategories) {
+      let itemsHtml = '';
+      skillCategories[cat].forEach(skill => {
+        const sData = state.skills[skill] || { lvl: "00", xp: "000/200" };
+        itemsHtml += `
+          <div class="skill-input-row">
+            <label>${skill}</label>
+            <div class="fixed-text-input">
+               <span class="fixed-text" style="font-size:0.5em;">Nv.</span>
+               <input type="text" value="${sData.lvl}" oninput="updSkill('${skill}', 'lvl', this.value)">
+            </div>
+            <input type="text" value="${sData.xp}" oninput="updSkill('${skill}', 'xp', this.value)">
+          </div>`;
+      });
+      html += `<div><div class="skills-category-title">${cat}</div>${itemsHtml}</div>`;
+    }
+    container.innerHTML = html;
+  }
+
+  function renderTechEditor() {
+    const container = document.getElementById('tech-list');
+    container.innerHTML = '';
+    state.techs.forEach((tech, idx) => {
+      const div = document.createElement('div');
+      div.className = 'tech-item';
+      div.innerHTML = `
+        <span class="tech-remove" onclick="removeTech(${idx})">×</span>
+        <input type="text" value="${tech.title}" placeholder="Nome" style="margin-bottom:5px; font-weight:bold;" oninput="updTech(${idx}, 'title', this.value)">
+        <textarea rows="2" placeholder="Descrição" oninput="updTech(${idx}, 'desc', this.value)">${tech.desc}</textarea>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function populateInputs() {
+    document.getElementById('inp-name').value = state.name;
+    document.getElementById('inp-grade').value = state.grade;
+    document.getElementById('inp-type').value = state.type;
+    document.getElementById('inp-img').value = state.img;
+    
+    document.getElementById('inp-hp-curr').value = state.hpCurr;
+    document.getElementById('inp-hp-max').value = state.hpMax;
+    document.getElementById('inp-ea-curr').value = state.eaCurr;
+    document.getElementById('inp-ea-max').value = state.eaMax;
+    document.getElementById('inp-regen').value = state.regen;
+    
+    document.getElementById('inp-attr-for').value = state.attrFor;
+    document.getElementById('inp-attr-des').value = state.attrDes;
+    document.getElementById('inp-attr-int').value = state.attrInt;
+    document.getElementById('inp-attr-sor').value = state.attrSor;
+    document.getElementById('inp-attr-vig').value = state.attrVig;
+    document.getElementById('inp-attr-ene').value = state.attrEne;
+    document.getElementById('inp-attr-fon').value = state.attrFon;
+    
+    document.getElementById('inp-phys').value = state.phys;
+    document.getElementById('inp-psy').value = state.psy;
+    document.getElementById('inp-hist').value = state.hist;
+
+    renderSkillsEditor();
+    renderTechEditor();
+  }
+
+  function renderPreview() {
+    const p = document.getElementById('preview-box');
+    let skillsColsHTML = '';
+    for (let cat in skillCategories) {
+      let items = '';
+      skillCategories[cat].forEach(s => {
+        const sData = state.skills[s] || { lvl: "00", xp: "000/200" };
+        items += `<div class="jjk-dossier-skill-item"><span>${s}</span><span class="jjk-dossier-skill-level">Nv. ${sData.lvl}</span><span class="jjk-dossier-skill-xp">${sData.xp}</span></div>`;
+      });
+      skillsColsHTML += `<div class="skill-col"><div class="skill-cat-name">${cat}</div>${items}</div>`;
+    }
+    
+    let loreHTML = '';
+    if(state.phys || state.psy || state.hist) {
+        loreHTML = `<div class="curse-section"><h3 class="curse-title">Descrição & Lore</h3><div class="lore-grid">`;
+        if(state.phys) loreHTML += `<div class="lore-box"><span class="lore-label">Físico</span><div class="lore-text">${state.phys.replace(/\n/g, '<br>')}</div></div>`;
+        if(state.psy) loreHTML += `<div class="lore-box"><span class="lore-label">Psicológico</span><div class="lore-text">${state.psy.replace(/\n/g, '<br>')}</div></div>`;
+        if(state.hist) loreHTML += `<div class="lore-box lore-full"><span class="lore-label">Histórico</span><div class="lore-text">${state.hist.replace(/\n/g, '<br>')}</div></div>`;
+        loreHTML += `</div></div>`;
+    }
+
+    let techsHTML = '';
+    state.techs.forEach(t => {
+      techsHTML += `<div class="curse-tech-card"><div class="tech-name">${t.title}</div><div class="tech-desc">${t.desc.replace(/\n/g, '<br>')}</div></div>`;
+    });
+
+    const html = `
+      <div class="jjk-curse-container">
+        <div class="curse-header">
+          <div class="curse-image" style="background-image: url('${state.img}');"></div>
+          <div class="curse-identity">
+            <div class="curse-name">${state.name}</div>
+            <div class="curse-tags"><span class="tag-grade">${state.grade}</span><span class="tag-type">${state.type}</span></div>
+            <div class="curse-main-stats">
+              <div class="jjk-dossier-status-item">
+                <div class="jjk-dossier-status-header"><span class="jjk-dossier-status-name">HP</span></div>
+                <div class="jjk-dossier-status-bar"><div class="jjk-dossier-hp-fill" style="width:100%"></div></div>
+                <div class="jjk-dossier-status-value">${state.hpCurr}/${state.hpMax}</div>
+              </div>
+              <div class="jjk-dossier-status-item">
+                <div class="jjk-dossier-status-header"><span class="jjk-dossier-status-name">EA</span></div>
+                <div class="jjk-dossier-status-bar"><div class="jjk-dossier-ea-fill" style="width:100%"></div></div>
+                <div class="jjk-dossier-status-value">${state.eaCurr}/${state.eaMax}</div>
+              </div>
+              <div class="curse-regen-info"><span class="label">Regeneração:</span> <span class="value">${state.regen} p/ turno</span></div>
+            </div>
+          </div>
+        </div>
+        
+        ${loreHTML}
+
+        <div class="curse-section">
+          <h3 class="curse-title">Atributos</h3>
+          <div class="jjk-dossier-attr-list">
+            <div class="jjk-dossier-attr-item"><div class="jjk-dossier-attr-header"><span>FOR</span><span class="jjk-dossier-attr-value">${state.attrFor}/20</span></div><div class="jjk-dossier-attr-bar"><div class="jjk-dossier-attr-bar-fill"></div></div></div>
+            <div class="jjk-dossier-attr-item"><div class="jjk-dossier-attr-header"><span>DES</span><span class="jjk-dossier-attr-value">${state.attrDes}/20</span></div><div class="jjk-dossier-attr-bar"><div class="jjk-dossier-attr-bar-fill"></div></div></div>
+            <div class="jjk-dossier-attr-item"><div class="jjk-dossier-attr-header"><span>INT</span><span class="jjk-dossier-attr-value">${state.attrInt}/20</span></div><div class="jjk-dossier-attr-bar"><div class="jjk-dossier-attr-bar-fill"></div></div></div>
+            <div class="jjk-dossier-attr-item"><div class="jjk-dossier-attr-header"><span>SOR</span><span class="jjk-dossier-attr-value">${state.attrSor}/20</span></div><div class="jjk-dossier-attr-bar"><div class="jjk-dossier-attr-bar-fill"></div></div></div>
+            <div class="jjk-dossier-attr-item"><div class="jjk-dossier-attr-header"><span>VIG</span><span class="jjk-dossier-attr-value">${state.attrVig}/20</span></div><div class="jjk-dossier-attr-bar"><div class="jjk-dossier-attr-bar-fill"></div></div></div>
+            <div class="jjk-dossier-attr-item"><div class="jjk-dossier-attr-header"><span>ENE</span><span class="jjk-dossier-attr-value">${state.attrEne}/20</span></div><div class="jjk-dossier-attr-bar"><div class="jjk-dossier-attr-bar-fill"></div></div></div>
+            <div class="jjk-dossier-attr-item"><div class="jjk-dossier-attr-header"><span>FON</span><span class="jjk-dossier-attr-value">${state.attrFon}/20</span></div><div class="jjk-dossier-attr-bar"><div class="jjk-dossier-attr-bar-fill"></div></div></div>
+          </div>
+        </div>
+        <div class="curse-section">
+          <h3 class="curse-title">Aptidões de Combate</h3>
+          <div class="curse-skills-grid">${skillsColsHTML}</div>
+        </div>
+        <div class="curse-section">
+          <h3 class="curse-title">Técnicas & Habilidades</h3>
+          <div class="curse-tech-list">${techsHTML}</div>
+        </div>
+      </div>
+    `;
+    p.innerHTML = html;
+  }
+
+  function generateCode() {
+    const container = document.getElementById('preview-box');
+    // Gera APENAS o HTML do container, sem a tag <link>
+    // O script global do fórum (v9) cuidará do CSS
+    const coreHTML = container.querySelector('.jjk-curse-container').outerHTML;
+    const minified = coreHTML.replace(/(\r\n|\n|\r)/gm, "").replace(/\s+/g, ' ').replace(/> </g, '><');
+    document.getElementById('output-code').value = minified;
+  }
+
+  function copyCode() {
+    document.getElementById('output-code').select();
+    document.execCommand('copy');
+    alert("Copiado!");
+  }
+
+  function runImport() {
+    const code = document.getElementById('import-area').value;
+    if(!code) return alert("Cole o código.");
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(code, 'text/html');
+
+    state.name = doc.querySelector('.curse-name')?.textContent || '';
+    state.grade = doc.querySelector('.tag-grade')?.textContent || '';
+    state.type = doc.querySelector('.tag-type')?.textContent || '';
+    state.img = doc.querySelector('.curse-image')?.style.backgroundImage.replace(/url\(['"]?(.*?)['"]?\)/, '$1') || '';
+    
+    const hpText = doc.querySelector('.jjk-dossier-status-item:nth-child(1) .jjk-dossier-status-value')?.textContent || '1000/1000';
+    const eaText = doc.querySelector('.jjk-dossier-status-item:nth-child(2) .jjk-dossier-status-value')?.textContent || '500/500';
+    const regenText = doc.querySelector('.curse-regen-info .value')?.textContent || '50 p/ turno';
+
+    state.hpCurr = hpText.split('/')[0].trim();
+    state.hpMax = hpText.split('/')[1].trim();
+    state.eaCurr = eaText.split('/')[0].trim();
+    state.eaMax = eaText.split('/')[1].trim();
+    state.regen = regenText.replace(' p/ turno', '').trim();
+
+    const attrs = doc.querySelectorAll('.jjk-dossier-attr-value');
+    const cleanAttr = (el) => el ? el.textContent.replace('/20', '').trim() : '0';
+    if(attrs.length >= 6) {
+      state.attrFor = cleanAttr(attrs[0]);
+      state.attrDes = cleanAttr(attrs[1]);
+      if(attrs.length === 7) {
+          state.attrInt = cleanAttr(attrs[2]);
+          state.attrSor = cleanAttr(attrs[3]);
+          state.attrVig = cleanAttr(attrs[4]);
+          state.attrEne = cleanAttr(attrs[5]);
+          state.attrFon = cleanAttr(attrs[6]);
+      } else {
+          state.attrSor = cleanAttr(attrs[2]);
+          state.attrVig = cleanAttr(attrs[3]);
+          state.attrEne = cleanAttr(attrs[4]);
+          state.attrFon = cleanAttr(attrs[5]);
+      }
+    }
+
+    // Import Lore (Tenta encontrar os blocos novos)
+    const loreBlocks = doc.querySelectorAll('.lore-text');
+    if(loreBlocks.length >= 1) state.phys = loreBlocks[0].innerHTML.replace(/<br>/g, '\n');
+    if(loreBlocks.length >= 2) state.psy = loreBlocks[1].innerHTML.replace(/<br>/g, '\n');
+    if(loreBlocks.length >= 3) state.hist = loreBlocks[2].innerHTML.replace(/<br>/g, '\n');
+
+    const skillItems = doc.querySelectorAll('.jjk-dossier-skill-item');
+    skillItems.forEach(item => {
+      const name = item.querySelector('span:first-child').textContent;
+      const lvl = item.querySelector('.jjk-dossier-skill-level')?.textContent.replace('Nv. ', '') || "00";
+      const xp = item.querySelector('.jjk-dossier-skill-xp')?.textContent || "000/200";
+      if(Object.values(skillCategories).flat().includes(name)) {
+        state.skills[name] = { lvl, xp };
+      }
+    });
+
+    state.techs = [];
+    doc.querySelectorAll('.curse-tech-card').forEach(card => {
+      state.techs.push({
+        title: card.querySelector('.tech-name')?.textContent || '',
+        desc: card.querySelector('.tech-desc')?.innerHTML.replace(/<br>/g, '\n') || ''
+      });
+    });
+
+    populateInputs();
+    renderPreview();
+    generateCode();
+    document.getElementById('import-modal').style.display = 'none';
+  }
+
+  function resetData() {
+    if(confirm("Limpar tudo?")) location.reload();
+  }
+
+  populateInputs();
+  renderPreview();
+  generateCode();
+</script>
+</body>
+</html>
