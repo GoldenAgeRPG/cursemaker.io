@@ -440,11 +440,10 @@
 
   function generateCode() {
     const container = document.getElementById('preview-box');
-    // Gera APENAS o HTML do container, sem a tag <link>
-    // O script global do fórum (v9) cuidará do CSS
     const coreHTML = container.querySelector('.jjk-curse-container').outerHTML;
     const minified = coreHTML.replace(/(\r\n|\n|\r)/gm, "").replace(/\s+/g, ' ').replace(/> </g, '><');
-    document.getElementById('output-code').value = minified;
+    const cssLink = '<link href="https://gaaaaaaaaabs.github.io/goldenagerepositor.io/ficha-maldicao.css" rel="stylesheet" type="text/css">';
+    document.getElementById('output-code').value = cssLink + minified;
   }
 
   function copyCode() {
