@@ -35,7 +35,6 @@
     #preview-box .tag-grade { background: var(--curse-accent); color: #fff; font-size: 0.7em; padding: 3px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
     #preview-box .tag-type { background: #333; color: #aaa; border: 1px solid #444; font-size: 0.7em; padding: 3px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
     
-    /* STATUS CORRIGIDOS (Flexbox) */
     #preview-box .curse-main-stats { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
     
     #preview-box .jjk-dossier-status-item { 
@@ -58,7 +57,6 @@
     #preview-box .curse-section { padding: 15px 20px; border-bottom: 1px solid var(--curse-border); }
     #preview-box .curse-title { font-size: 1.1em; font-weight: 700; color: var(--curse-accent); border-bottom: 1px solid var(--curse-border); padding-bottom: 5px; margin: 0 0 15px 0; text-transform: uppercase; font-family: 'Roboto', sans-serif; }
     
-    /* LORE GRID */
     #preview-box .lore-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
     #preview-box .lore-box { background: var(--curse-panel); padding: 10px; border-radius: 4px; border: 1px solid #2a1a1a; }
     #preview-box .lore-full { grid-column: 1 / -1; }
@@ -124,13 +122,17 @@
     .btn:active { transform: translate(4px, 4px); box-shadow: none; }
     .btn-primary { background: var(--ui-accent); color: #fff; }
     .btn-secondary { background: #333; color: #ccc; }
-    #import-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: none; align-items: center; justify-content: center; }
+    
+    /* MODAIS */
+    #import-modal, #custom-alert { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: none; align-items: center; justify-content: center; }
     .modal-box { background: var(--ui-panel); padding: 20px; border: 4px solid var(--ui-accent); width: 90%; max-width: 500px; box-shadow: 10px 10px 0 #000; }
+    
     .skills-grid-editor { display: grid; grid-template-columns: 1fr; gap: 15px; }
     .skills-category-title { color: var(--ui-highlight); font-family: 'Press Start 2P', cursive; font-size: 0.7em; border-bottom: 2px dashed var(--ui-border); margin-bottom: 10px; padding-bottom: 5px; }
     .skill-input-row { display: grid; grid-template-columns: 1fr 90px 90px; gap: 10px; align-items: center; margin-bottom: 5px; }
     .skill-input-row label { font-family: 'VT323', monospace; font-size: 1.3em; color: #aaa; margin: 0; text-shadow: none; }
     .skill-input-row input { text-align: center; padding: 5px; }
+    
     .preview-pane { background: #050505; background-image: linear-gradient(rgba(50, 0, 0, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(50, 0, 0, 0.2) 1px, transparent 1px); background-size: 40px 40px; overflow-y: auto; height: 100%; display: flex; justify-content: center; padding: 40px; box-sizing: border-box; }
     #preview-box { width: 100%; max-width: 800px; }
     @media (max-width: 800px) { .layout-grid { grid-template-columns: 1fr; display: block; overflow: auto; height: auto; } .editor-pane { height: auto; min-width: 100%; border-right: none; } .editor-scroll-area { overflow: visible; } .preview-pane { min-height: 100vh; padding: 20px 10px; } html, body { overflow: auto; height: auto; } }
@@ -146,6 +148,14 @@
         <button class="btn btn-primary" onclick="runImport()">CARREGAR</button>
         <button class="btn btn-secondary" onclick="document.getElementById('import-modal').style.display='none'">CANCELAR</button>
       </div>
+    </div>
+  </div>
+
+  <div id="custom-alert">
+    <div class="modal-box" style="text-align: center;">
+      <h3 id="alert-msg" style="margin-top:0; color:var(--ui-text); font-family:'VT323'; font-size:1.5em; margin-bottom:20px;">MENSAGEM AQUI</h3>
+      <div class="row" id="alert-btns" style="justify-content: center;">
+        </div>
     </div>
   </div>
 
@@ -256,12 +266,74 @@
   </div>
 
 <script>
+  // DADOS DE XP - AGORA COM NÍVEL 0
+  const xpTable = [
+    {l:0,x:0}, // Nv 0 começa em 0 XP
+    {l:1,x:200}, // Nv 1 começa em 200 XP
+    {l:2,x:500},
+    {l:3,x:900},
+    {l:4,x:1400},
+    {l:5,x:2000},
+    {l:6,x:2700},
+    {l:7,x:3500},
+    {l:8,x:4400},
+    {l:9,x:5400},
+    {l:10,x:6500},
+    {l:11,x:8600},{l:12,x:10800},{l:13,x:13100},{l:14,x:15500},{l:15,x:18000},{l:16,x:20600},{l:17,x:23300},{l:18,x:26100},{l:19,x:29000},{l:20,x:32000},
+    {l:21,x:36000},{l:22,x:40100},{l:23,x:44300},{l:24,x:48600},{l:25,x:53000},{l:26,x:57500},{l:27,x:62100},{l:28,x:66800},{l:29,x:71600},{l:30,x:76500},
+    {l:31,x:82400},{l:32,x:88400},{l:33,x:94500},{l:34,x:100700},{l:35,x:107000},{l:36,x:113400},{l:37,x:119900},{l:38,x:126500},{l:39,x:133200},{l:40,x:140000},
+    {l:41,x:147800},{l:42,x:155700},{l:43,x:163700},{l:44,x:171800},{l:45,x:180000},{l:46,x:188300},{l:47,x:196700},{l:48,x:205200},{l:49,x:213800},{l:50,x:222500}
+  ];
+
+  // RETORNA DADOS DO XP (Nivel, Display Formatado, XP Base do Nivel)
+  function calculateLevelData(xpTotal) {
+    let lvl = 0, base = 0, next = 200;
+    
+    // Varre a tabela para encontrar onde o XP atual se encaixa
+    for(let i = 0; i < xpTable.length; i++) {
+        const row = xpTable[i];
+        if(xpTotal >= row.x) {
+            lvl = row.l; 
+            base = row.x;
+            
+            if (i + 1 < xpTable.length) {
+                next = xpTable[i+1].x;
+            } else {
+                next = null; // Max level
+            }
+        } else {
+            // Se o XP total for menor que o requisito deste nível,
+            // então o loop anterior já definiu o nível correto.
+            // O "next" precisa ser o X deste nível que falhou.
+            next = row.x;
+            break;
+        }
+    }
+    
+    // Limite Nível 50
+    if (lvl > 50) {
+        lvl = 50;
+        base = 222500;
+        next = null;
+    }
+
+    let fmt = "MÁXIMO";
+    if (next !== null) {
+        const currentRel = xpTotal - base;
+        const requiredRel = next - base;
+        fmt = `${currentRel} / ${requiredRel}`;
+    }
+
+    return { l: lvl, f: fmt, base: base };
+  }
+
   const skillCategories = {
-    'FORÇA': ['Desarmado', 'Esp. Longas', 'Mach. Longos', 'Mart. Longos', 'Clavas', 'Escalada', 'Acrobacia'],
-    'DESTREZA': ['Esp. Curtas', 'Adagas', 'Lâm. Duplas', 'Mach. Curtos', 'Mart. Curtos', 'Lanças', 'Foices', 'Bastões', 'Correntes', 'Arremesso', 'Armas Fogo', 'Furtividade', 'Natação', 'Corrida'],
-    'INTELIGÊNCIA': ['Feitiços', 'Barreiras', 'Pactos', 'Perc. Mágica', '1º Socorros', 'Téc. Reversa', 'Perc. Visual', 'Sobrevivência']
+    'FORÇA': ['Desarmado', 'Esp. Longas', 'Mach. Longos', 'Mart. Longos', 'Clavas', 'Escalada', 'Acrobacia', 'Arcos Longos', 'Mitridatismo'],
+    'DESTREZA': ['Esp. Curtas', 'Adagas', 'Lâm. Duplas', 'Mach. Curtos', 'Mart. Curtos', 'Lanças', 'Foices', 'Bastões', 'Correntes', 'Arremesso', 'Armas Fogo', 'Furtividade', 'Natação', 'Corrida', 'Arcos Curtos', 'Balestras'],
+    'INTELIGÊNCIA': ['Feitiços', 'Barreiras', 'Pactos', 'Perc. Mágica', '1º Socorros', 'Téc. Reversa', 'Perc. Visual', 'Sobrevivência', 'Vontade', 'Manipulação']
   };
 
+  // ESTADO GLOBAL
   let state = {
     name: "Nome da Maldição", grade: "Grau Especial", type: "Espírito Amaldiçoado",
     img: "https://i.pinimg.com/originals/86/c2/3d/86c23d6515462220407f70c877038526.jpg",
@@ -270,25 +342,147 @@
     regen: "50",
     attrFor: "10", attrDes: "10", attrInt: "10", attrSor: "10", 
     attrVig: "10", attrEne: "10", attrFon: "10",
-    skills: {},
+    skills: {}, // { "NomeSkill": { xp: 1200 } } -> O nivel é derivado
     phys: "", psy: "", hist: "",
     techs: [ { title: "Técnica Inata", desc: "Descrição da técnica." } ]
   };
 
+  function showPopup(msg, isConfirm, onConfirm) {
+    const modal = document.getElementById('custom-alert');
+    const msgEl = document.getElementById('alert-msg');
+    const btnsEl = document.getElementById('alert-btns');
+    
+    msgEl.innerText = msg;
+    btnsEl.innerHTML = ''; 
+
+    if(isConfirm) {
+        const btnYes = document.createElement('button');
+        btnYes.className = 'btn btn-primary';
+        btnYes.innerText = 'SIM';
+        btnYes.onclick = function() {
+            modal.style.display = 'none';
+            if(onConfirm) onConfirm();
+        };
+        const btnNo = document.createElement('button');
+        btnNo.className = 'btn btn-secondary';
+        btnNo.innerText = 'NÃO';
+        btnNo.onclick = function() {
+            modal.style.display = 'none';
+        };
+        btnsEl.appendChild(btnYes);
+        btnsEl.appendChild(btnNo);
+    } else {
+        const btnOk = document.createElement('button');
+        btnOk.className = 'btn btn-primary';
+        btnOk.innerText = 'OK';
+        btnOk.onclick = function() {
+            modal.style.display = 'none';
+        };
+        btnsEl.appendChild(btnOk);
+    }
+    
+    modal.style.display = 'flex';
+  }
+
   function initSkills() {
     for (let cat in skillCategories) {
       skillCategories[cat].forEach(skill => {
-        if (!state.skills[skill]) state.skills[skill] = { lvl: "00", xp: "000/200" };
+        // Inicializa com XP 0 (Nv 0)
+        if (!state.skills[skill]) state.skills[skill] = { xp: 0 };
       });
     }
   }
-  initSkills();
 
+  // --- CONSTRUTOR DE UI (RODA 1 VEZ) ---
+  function renderSkillsEditorOnce() {
+    const container = document.getElementById('skills-editor-container');
+    if(container.innerHTML.trim() !== "") return;
+
+    let html = '';
+    for (let cat in skillCategories) {
+      let itemsHtml = '';
+      skillCategories[cat].forEach(skill => {
+        // IDs únicos
+        const safeId = skill.replace(/\s+/g, '-');
+        const idLvl = `sk-lvl-${safeId}`;
+        const idXp = `sk-xp-${safeId}`;
+        
+        itemsHtml += `
+          <div class="skill-input-row">
+            <label>${skill}</label>
+            <div class="fixed-text-input">
+               <span class="fixed-text" style="font-size:0.5em;">Nv.</span>
+               <input type="number" id="${idLvl}" min="0" max="50" value="0"
+                      onkeydown="return false" 
+                      oninput="onSkillLevelChange('${skill}', this.value)">
+            </div>
+            <input type="number" id="${idXp}" placeholder="XP Total" min="0" value="0"
+                   oninput="onSkillXpChange('${skill}', this.value)">
+          </div>`;
+      });
+      html += `<div><div class="skills-category-title">${cat}</div>${itemsHtml}</div>`;
+    }
+    container.innerHTML = html;
+  }
+
+  // --- ATUALIZA VALORES NOS INPUTS (SEM RECRIAR HTML) ---
+  function syncSkillInputs() {
+    for (let cat in skillCategories) {
+        skillCategories[cat].forEach(skill => {
+            const xpTotal = state.skills[skill]?.xp || 0;
+            const data = calculateLevelData(xpTotal);
+            
+            const safeId = skill.replace(/\s+/g, '-');
+            const elLvl = document.getElementById(`sk-lvl-${safeId}`);
+            const elXp = document.getElementById(`sk-xp-${safeId}`);
+            
+            if(elLvl) elLvl.value = data.l;
+            
+            if(elXp && document.activeElement !== elXp) {
+                elXp.value = xpTotal;
+            }
+        });
+    }
+  }
+
+  // --- HANDLERS ---
   function upd(field, val) { state[field] = val; renderPreview(); generateCode(); }
 
-  function updSkill(name, type, val) {
-    if (!state.skills[name]) state.skills[name] = { lvl: "00", xp: "000/200" };
-    state.skills[name][type] = val;
+  // Usuário digitou no XP
+  function onSkillXpChange(name, val) {
+    let xp = parseInt(val);
+    if(isNaN(xp)) xp = 0;
+    
+    state.skills[name].xp = xp;
+    
+    // Atualiza o input de Nível correspondente
+    const data = calculateLevelData(xp);
+    const safeId = name.replace(/\s+/g, '-');
+    const elLvl = document.getElementById(`sk-lvl-${safeId}`);
+    if(elLvl) elLvl.value = data.l;
+
+    renderPreview();
+    generateCode();
+  }
+
+  // Usuário clicou na seta do Nível
+  function onSkillLevelChange(name, val) {
+    let newLvl = parseInt(val);
+    if(isNaN(newLvl) || newLvl < 0) newLvl = 0;
+    if(newLvl > 50) newLvl = 50;
+
+    let minXP = 0;
+    // Encontra o XP base para este nível exato
+    const exactEntry = xpTable.find(r => r.l === newLvl);
+    if(exactEntry) minXP = exactEntry.x;
+
+    state.skills[name].xp = minXP;
+    
+    // Atualiza input XP visual
+    const safeId = name.replace(/\s+/g, '-');
+    const elXp = document.getElementById(`sk-xp-${safeId}`);
+    if(elXp) elXp.value = minXP;
+
     renderPreview();
     generateCode();
   }
@@ -296,28 +490,6 @@
   function addTech() { state.techs.push({ title: "Nova Técnica", desc: "Descrição..." }); renderTechEditor(); renderPreview(); generateCode(); }
   function updTech(idx, field, val) { state.techs[idx][field] = val; renderPreview(); generateCode(); }
   function removeTech(idx) { state.techs.splice(idx, 1); renderTechEditor(); renderPreview(); generateCode(); }
-
-  function renderSkillsEditor() {
-    const container = document.getElementById('skills-editor-container');
-    let html = '';
-    for (let cat in skillCategories) {
-      let itemsHtml = '';
-      skillCategories[cat].forEach(skill => {
-        const sData = state.skills[skill] || { lvl: "00", xp: "000/200" };
-        itemsHtml += `
-          <div class="skill-input-row">
-            <label>${skill}</label>
-            <div class="fixed-text-input">
-               <span class="fixed-text" style="font-size:0.5em;">Nv.</span>
-               <input type="text" value="${sData.lvl}" oninput="updSkill('${skill}', 'lvl', this.value)">
-            </div>
-            <input type="text" value="${sData.xp}" oninput="updSkill('${skill}', 'xp', this.value)">
-          </div>`;
-      });
-      html += `<div><div class="skills-category-title">${cat}</div>${itemsHtml}</div>`;
-    }
-    container.innerHTML = html;
-  }
 
   function renderTechEditor() {
     const container = document.getElementById('tech-list');
@@ -358,7 +530,7 @@
     document.getElementById('inp-psy').value = state.psy;
     document.getElementById('inp-hist').value = state.hist;
 
-    renderSkillsEditor();
+    syncSkillInputs();
     renderTechEditor();
   }
 
@@ -368,8 +540,14 @@
     for (let cat in skillCategories) {
       let items = '';
       skillCategories[cat].forEach(s => {
-        const sData = state.skills[s] || { lvl: "00", xp: "000/200" };
-        items += `<div class="jjk-dossier-skill-item"><span>${s}</span><span class="jjk-dossier-skill-level">Nv. ${sData.lvl}</span><span class="jjk-dossier-skill-xp">${sData.xp}</span></div>`;
+        const xpTotal = state.skills[s]?.xp || 0;
+        const data = calculateLevelData(xpTotal);
+        
+        // Formatação visual "05"
+        const displayLvl = data.l < 10 ? `0${data.l}` : data.l;
+        const displayXP = data.f;
+
+        items += `<div class="jjk-dossier-skill-item"><span>${s}</span><span class="jjk-dossier-skill-level">Nv. ${displayLvl}</span><span class="jjk-dossier-skill-xp">${displayXP}</span></div>`;
       });
       skillsColsHTML += `<div class="skill-col"><div class="skill-cat-name">${cat}</div>${items}</div>`;
     }
@@ -449,12 +627,13 @@
   function copyCode() {
     document.getElementById('output-code').select();
     document.execCommand('copy');
-    alert("Copiado!");
+    showPopup("CÓDIGO COPIADO!", false);
   }
 
   function runImport() {
     const code = document.getElementById('import-area').value;
-    if(!code) return alert("Cole o código.");
+    if(!code) return showPopup("COLE O CÓDIGO PRIMEIRO.", false);
+    
     const parser = new DOMParser();
     const doc = parser.parseFromString(code, 'text/html');
 
@@ -492,19 +671,31 @@
       }
     }
 
-    // Import Lore (Tenta encontrar os blocos novos)
     const loreBlocks = doc.querySelectorAll('.lore-text');
     if(loreBlocks.length >= 1) state.phys = loreBlocks[0].innerHTML.replace(/<br>/g, '\n');
     if(loreBlocks.length >= 2) state.psy = loreBlocks[1].innerHTML.replace(/<br>/g, '\n');
     if(loreBlocks.length >= 3) state.hist = loreBlocks[2].innerHTML.replace(/<br>/g, '\n');
 
+    // Import Skills (Reversão do formato relativo para absoluto aproximado)
     const skillItems = doc.querySelectorAll('.jjk-dossier-skill-item');
     skillItems.forEach(item => {
       const name = item.querySelector('span:first-child').textContent;
-      const lvl = item.querySelector('.jjk-dossier-skill-level')?.textContent.replace('Nv. ', '') || "00";
-      const xp = item.querySelector('.jjk-dossier-skill-xp')?.textContent || "000/200";
+      const lvl = parseInt(item.querySelector('.jjk-dossier-skill-level')?.textContent.replace('Nv. ', '')) || 0;
+      const xpText = item.querySelector('.jjk-dossier-skill-xp')?.textContent || "0 / 200";
+      
+      // Formato: 500 / 200
+      const currentRel = parseInt(xpText.split('/')[0].trim()) || 0;
+      
+      // Precisamos recuperar o TOTAL XP.
+      let base = 0;
+      // Procura na tabela o XP base deste nível
+      const entry = xpTable.find(r => r.l === lvl);
+      if (entry) base = entry.x;
+      
+      const recoveredTotal = base + currentRel;
+
       if(Object.values(skillCategories).flat().includes(name)) {
-        state.skills[name] = { lvl, xp };
+        state.skills[name] = { xp: recoveredTotal };
       }
     });
 
@@ -523,9 +714,15 @@
   }
 
   function resetData() {
-    if(confirm("Limpar tudo?")) location.reload();
+    showPopup("TEM CERTEZA? TUDO SERÁ APAGADO.", true, function() {
+        location.reload();
+    });
   }
 
+  // Inicializa o HTML estático dos editores de skill (roda 1 vez)
+  initSkills();
+  renderSkillsEditorOnce();
+  
   populateInputs();
   renderPreview();
   generateCode();
